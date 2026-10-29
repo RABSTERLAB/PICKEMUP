@@ -6,9 +6,11 @@ on:
 
 jobs:
   backend:
-    runs-on: ubuntu-latest
+    # pinned: ubuntu-latest migrates to Ubuntu 26 (Oct 2026) and silently
+    # changes the toolchain under CI; reproducible beats bleeding-edge here
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -26,12 +28,12 @@ jobs:
         run: python -m pytest tests -q
 
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: apps/web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: 20
