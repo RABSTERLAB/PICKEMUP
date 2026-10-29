@@ -1,0 +1,1 @@
+PICKEMUP will be an AI-powered OSINT and threat-intelligence platform for detecting suspicious bots, tracking extremist and hateful campaigns, identifying coordinated networks, and reconstructing the publicly observable origins of information operations.

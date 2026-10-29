@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PICKEMUP — Local-first OSINT & Coordinated-Network Intelligence</title>
+<meta name="description" content="PICKEMUP detects suspicious automation and coordinated networks on X, reconstructs narrative origins, and stores every finding as searchable local evidence with provenance.">
+<style>
+  :root{
+    --bg:#07090d; --bg2:#0b0f16; --panel:rgba(255,255,255,.035); --panel2:rgba(255,255,255,.06);
+    --line:rgba(255,255,255,.12); --fg:#e6eaf2; --muted:#8b94a3; --accent:#35e0c8;
+    --accent-dim:rgba(53,224,200,.12); --warn:#ffb454; --danger:#ff5d6c; --info:#6ea8fe;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:
+    radial-gradient(1100px 520px at 82% -8%, rgba(53,224,200,.07), transparent 60%),
+    radial-gradient(900px 480px at -8% 108%, rgba(110,168,254,.06), transparent 60%), var(--bg);
+    color:var(--fg); font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+      background:rgba(7,9,13,.75);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:22px;height:56px}
+  .logo{font-weight:800;font-size:17px;letter-spacing:.02em;color:var(--fg)}
+  .logo b{color:var(--accent)}
+  nav .links{display:flex;gap:16px;font-size:13px;color:var(--muted);flex-wrap:nowrap;white-space:nowrap}
+  nav .links a{color:var(--muted)} nav .links a:hover{color:var(--fg);text-decoration:none}
+  nav .cta{margin-left:auto;font-size:13px;border:1px solid rgba(53,224,200,.5);background:var(--accent-dim);
+      color:var(--accent);padding:7px 14px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+  nav .cta:hover{text-decoration:none;border-color:var(--accent)}
+
+  header.hero{padding:84px 0 42px;text-align:center}
+  .kicker{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+  h1{font-size:clamp(30px,4.6vw,52px);font-weight:800;line-height:1.12;margin:14px 0 16px}
+  h1 .g{background:linear-gradient(90deg,var(--accent),#7ef0ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:720px;margin:0 auto;font-size:16.5px}
+  .chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+  .chip{font-size:12px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:var(--panel)}
+  .chip.ok{color:var(--accent);border-color:rgba(53,224,200,.4)}
+  .hero img{margin-top:44px;width:100%;border-radius:16px;border:1px solid var(--line);
+      box-shadow:0 0 70px rgba(53,224,200,.10),0 30px 80px rgba(0,0,0,.55)}
+
+  section{padding:64px 0 8px}
+  h2{font-size:28px;font-weight:750;margin-bottom:10px}
+  .lead{color:var(--muted);max-width:780px;margin-bottom:30px}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:840px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .card h3{font-size:16.5px;margin-bottom:8px}
+  .card p{font-size:14px;color:var(--muted)}
+
+  figure{margin:26px 0;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  figure img{width:100%;display:block}
+  figcaption{padding:16px 20px;font-size:13.5px;color:var(--muted);border-top:1px solid var(--line)}
+  figcaption b{color:var(--fg);display:block;font-size:14.5px;margin-bottom:3px}
+
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:28px 0;counter-reset:step}
+  @media(max-width:900px){.flow{grid-template-columns:1fr}}
+  .step{position:relative;padding:20px;border:1px solid var(--line);background:var(--panel)}
+  .step:first-child{border-radius:16px 0 0 16px}.step:last-child{border-radius:0 16px 16px 0}
+  @media(max-width:900px){.step,.step:first-child,.step:last-child{border-radius:16px;margin-bottom:12px}}
+  .step .n{counter-increment:step;font-size:10.5px;color:var(--accent);letter-spacing:.14em}
+  .step .n::before{content:"STEP " counter(step,decimal-leading-zero)}
+  .step h3{font-size:15px;margin:6px 0}
+  .step ul{list-style:none;font-size:13px;color:var(--muted)}
+  .step li{padding:2.5px 0 2.5px 16px;position:relative}
+  .step li::before{content:"";position:absolute;left:0;top:11px;width:7px;height:7px;border-radius:9px;background:var(--accent);opacity:.55}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:18px 0}
+  th{color:var(--muted);text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:9px 12px;border-bottom:1px solid var(--line)}
+  td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top;color:var(--fg)}
+  td code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
+  .pill{display:inline-block;font-size:11.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--line)}
+  .pill.red{color:var(--danger);border-color:rgba(255,93,108,.4);background:rgba(255,93,108,.1)}
+  .pill.teal{color:var(--accent);border-color:rgba(53,224,200,.4);background:var(--accent-dim)}
+  .pill.amber{color:var(--warn);border-color:rgba(255,180,84,.4);background:rgba(255,180,84,.1)}
+
+  pre{background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+      overflow-x:auto;font-size:13px;line-height:1.55;margin:14px 0}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  p code,li code{background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px}
+
+  ol.steps{margin:18px 0 6px;padding-left:0;list-style:none;counter-reset:s}
+  ol.steps>li{counter-increment:s;display:flex;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  ol.steps>li::before{content:counter(s);flex:0 0 30px;height:30px;border-radius:9px;background:var(--accent-dim);
+      border:1px solid rgba(53,224,200,.45);color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+  ol.steps b{display:block}
+  ol.steps span{font-size:13.5px;color:var(--muted)}
+
+  .note{border-left:3px solid var(--accent);background:var(--accent-dim);border-radius:0 12px 12px 0;
+        padding:14px 18px;font-size:13.5px;margin:18px 0;color:var(--fg)}
+  .note.amber{border-color:var(--warn);background:rgba(255,180,84,.10)}
+
+  footer{margin-top:80px;border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted);font-size:13px}
+  .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:26px}
+  @media(max-width:840px){.cols{grid-template-columns:1fr}}
+  .cols h4{color:var(--fg);font-size:13.5px;margin-bottom:8px}
+  .cols a{display:block;color:var(--muted);font-size:13px;padding:2px 0}
+  .cols a:hover{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="logo">PICKEM<b>UP</b></span>
+  <div class="links">
+    <a href="#tour">Tour</a><a href="#how">How it works</a><a href="#connectx">Connect X</a>
+    <a href="#ai">Optional AI</a><a href="#privacy">Privacy &amp; honesty</a><a href="#start">Quick start</a>
+  </div>
+  <a class="cta" href="#start">Run it locally</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="kicker">Local-first OSINT · Coordinated-network intelligence</div>
+  <h1>See the <span class="g">puppeteers</span>,<br>not just the puppets.</h1>
+  <p class="sub">PICKEMUP collects public posts from <b>Bluesky</b> and <b>X</b>, scores suspicious automation and coordination with
+  <b>explainable deterministic engines</b>, reconstructs narrative origins, and stores every finding as
+  searchable local evidence — each verdict linked back to the exact posts that produced it.</p>
+  <div class="chips">
+    <span class="chip ok">✓ 104 automated tests</span>
+    <span class="chip ok">Free Bluesky path — no API key needed</span>
+    <span class="chip">100% local — SQLite / Postgres</span>
+    <span class="chip">Works fully without any LLM</span>
+    <span class="chip">Bilingual AR + EN risk engine</span>
+    <span class="chip">Provenance &amp; audit built-in</span>
+  </div>
+  <img src="assets/01-overview.png" alt="PICKEMUP overview with live collection panel, stats and clusters">
+</div></header>
+
+<div class="wrap">
+
+<section id="why"><div class="grid2">
+  <div class="card"><h3>🕵 Built for investigators, not dashboards-for-the-sake-of-it</h3>
+  <p>Every number on screen is computed from records you collected and can re-verify. Nothing is
+  phoned home, nothing is a black box: verdicts say <i>likely automated</i>, never <i>proof of bot</i>.</p></div>
+  <div class="card"><h3>🧠 The engines are the brain</h3>
+  <p>Automation scoring, coordination clustering, risk lexicons (Arabic · English · Arabizi), narrative
+  origin tracking and a typed entity index run deterministically, offline. An LLM is an <i>optional</i>
+  narration layer — the product's integrity never depends on it.</p></div>
+  <div class="card"><h3>🗄 A case file you can search years later</h3>
+  <p>One SQLite file holds posts, accounts, findings, entities, alerts, cases, reports and an append-only
+  audit log. Full-text and typed-entity search with pivots works on the local corpus forever.</p></div>
+  <div class="card"><h3>💸 Paid-API paranoia included</h3>
+  <p>The X connector refuses to spend beyond your caps — estimated <b>before</b> every HTTP call, per-job and
+  per-day, with a live counter in the UI. A zero-record run always explains itself.</p></div>
+</div></section>
+
+<section id="tour">
+  <h2>Product tour</h2>
+  <p class="lead">Screens below were captured from a <b>live Bluesky corpus</b> collected with one click and zero
+  credentials — exactly what you get on first run. X-sourced data looks identical, down to the badges; synthetic
+  demo data, when used, is always visibly labeled <span class="pill amber">synthetic</span> — that honesty is the point.</p>
+
+  <figure><img src="assets/02-live-globe.png" alt="Threat globe with interaction arcs">
+  <figcaption><b>Live Monitor — threat globe</b>Starfield globe with region risk markers and directed comet arcs
+  built from <i>real repost/mention records</i> crossing regions. Arc width = interaction volume; color = whether both
+  endpoints are flagged. Offline rendering — no tile servers, no external calls.</figcaption></figure>
+
+  <figure><img src="assets/03-network.png" alt="3D coordination network explorer">
+  <figcaption><b>Network Explorer — coordination graph</b>3D force graph of accounts and edges. Blue = observed
+  interactions (reposts/mentions, particles flow actor → target); orange = inferred behavioral similarity.
+  Weak signals are suppressed by default; click a node to open its ego-circle with evidence. Edges come only from
+  observed records or scored similarity — never from identity assumptions.</figcaption></figure>
+
+  <div class="grid2">
+  <figure style="margin-top:0"><img src="assets/04-search.png" alt="Investigation search with typed entities">
+  <figcaption><b>Investigation Search</b>One query returns typed entities (domains, hashtags, mentions, URLs,
+  phones, emails), matching posts and accounts — with <b>pivots</b>: who posted this, what else co-occurs.
+  Typed-entity search with local pivot transforms over the evidence index.</figcaption></figure>
+  <figure style="margin-top:0"><img src="assets/05-threats.png" alt="Threat monitor and watchlist">
+  <figcaption><b>Threat Monitor + watchlist</b>Bilingual risk triage with category/severity/action per post —
+  and the operator <b>watchlist</b>: teach the engine your own trigger words; the whole corpus re-scores
+  automatically and new hits alert.</figcaption></figure>
+  </div>
+
+  <figure><img src="assets/06-accounts.png" alt="Account intelligence dossier">
+  <figcaption><b>Account Intelligence dossier</b>Click any account for the full verdict: automation score with
+  per-signal contributions (clock-like cadence, near-duplicate content, recycled hashtag sequences, templated
+  messaging…), <b>counter-evidence</b> when the stylistic classifier disagrees, cluster membership, and the
+  raw evidence trail with content hashes.</figcaption></figure>
+
+  <div class="grid2">
+  <figure style="margin-top:0"><img src="assets/07-alerts.png" alt="Alerts queue">
+  <figcaption><b>Alerts</b>Deduplicated, triageable: new / acknowledged / false-positive. Escalations come from
+  automation verdict changes, new clusters, watchlist hits, collection bursts and engine correlations.</figcaption></figure>
+  <figure style="margin-top:0"><img src="assets/08-reports.png" alt="Analyst reports">
+  <figcaption><b>Analyst Reports</b>Deterministic EN/AR reports built from a stored fact-pack with a SHA-256
+  fingerprint — any claim can be re-audited against evidence. Optional LLM narration; optional email delivery
+  with full audit.</figcaption></figure>
+  </div>
+
+  <figure><img src="assets/09-sources.png" alt="Data sources with X connection panel">
+  <figcaption><b>Data Sources — operator controls</b>Bearer token save/clear/test (masked, never echoed by the API),
+  spend caps, and a confirm-typed <span class="mono">PURGE</span> for wiping collected data while keeping settings,
+  watchlist vocabulary and the audit trail. The screenshot shows the built-in connection probe honestly diagnosing
+  an unfunded X project.</figcaption></figure>
+</section>
+
+<section id="how">
+  <h2>How it works</h2>
+  <p class="lead">Four stages, one durable pipeline. Every stage is a queue job — atomic claims, retries,
+  dead-letter, all inspectable in the UI.</p>
+  <div class="flow">
+    <div class="step"><div class="n"></div><h3>Collect</h3><ul>
+      <li>Bluesky public search — free, no key</li>
+      <li>X API v2 recent search (App-only bearer)</li>
+      <li>BudgetGuard estimates cost <b>before</b> each call; hard per-job &amp; per-day caps</li>
+      <li>Rate-limit aware; errors translated to plain language</li></ul></div>
+    <div class="step"><div class="n"></div><h3>Store</h3><ul>
+      <li>Posts + accounts with provenance JSON &amp; SHA-256</li>
+      <li><code>origin_mode</code>: live · fixture · mock · synthetic — badged in the UI</li>
+      <li>Dedup, typed entity index, append-only audit log</li></ul></div>
+    <div class="step"><div class="n"></div><h3>Analyze</h3><ul>
+      <li>Automation: multi-signal, explainable, ≥2 strong families to flag</li>
+      <li>Coordination: synced reposts, temporal-sync of near-duplicates, popular-artifact exclusion</li>
+      <li>Risk: 6-category AR/EN/Arabizi matrix + operator watchlist</li>
+      <li>Narratives: first-observed origin tracking, honest about gaps</li></ul></div>
+    <div class="step"><div class="n"></div><h3>Act</h3><ul>
+      <li>Deduped alerts with triage</li>
+      <li>Cases &amp; analyst reports (facts + fingerprint)</li>
+      <li>Optional monitored email delivery, fully audited</li></ul></div>
+  </div>
+  <div class="note">A successful collection <b>auto-chains the whole engine pipeline</b> — you never have to
+  remember to run analysis. The monitor then re-analyzes the stored corpus on a schedule and raises alerts on deltas.</div>
+</section>
+
+<section id="connectx">
+  <h2>Connecting data sources</h2>
+  <div class="note">⚡ <b>Fastest path: Bluesky — nothing to connect.</b> <code>bluesky</code> uses the public
+  <code>app.bsky.app</code> search API: no key, no billing, available the moment you start the app. Choose
+  <b>Bluesky · free</b> in the Overview collect panel, type a query, done. Honest limits: it's a search view of
+  public posts (no firehose, no deleted posts), rate-limited politely with auto-backoff. Everything below applies
+  to the paid X connector.</div>
+  <h3 style="margin-top:26px;font-size:19px" id="connectx-x">Connecting X</h3>
+  <p class="lead">PICKEMUP reads X through the official <b>API v2</b> with a single App-only OAuth2 bearer token.
+  It needs <i>only</i> that token — never your password, consumer key or consumer secret. Spend caps
+  ($/job, $/day) are enforced before every HTTP call.</p>
+  <ol class="steps">
+    <li><b>Create the app &amp; get the token</b><span>At <a href="https://developer.x.com" rel="noopener">developer.x.com</a>:
+      create a project + app, then copy the <b>Bearer Token</b> (App-only OAuth2). Reading recent search requires a
+      <b>paid access tier with credits</b> — the free tier is write-only.</span></li>
+    <li><b>Give PICKEMUP the token</b><span>Either paste it into <b>Data Sources → X connection → save token</b>
+      (stored locally, masked everywhere, never returned by any API response), <i>or</i> put it in
+      <code>.env</code> as <code>X_BEARER_TOKEN=*** UI value wins over env.</span></li>
+    <li><b>Set your money limits</b><span>Same card: <b>max $/job</b> and <b>max $/day</b>
+      (defaults $2 / $10). The BudgetGuard estimates each page pull at ~$0.005/post + $0.010/user-read and
+      refuses calls that would exceed caps — before making them. A live “spent today” counter tracks actuals.</span></li>
+    <li><b>Test, then collect</b><span>Click <b>test connection</b> — one cheap authenticated call that tells you
+      exactly where you stand. Then on the Overview, type a recent-search query
+      (e.g. <code>(خريجي الجماعة OR caliphate) lang:ar -is:retweet</code>) and press start. Posts ingest with
+      provenance; automation · risk · coordination · narrative engines run automatically.</span></li>
+  </ol>
+  <table>
+    <tr><th>Probe / job says</th><th>Meaning</th><th>Fix</th></tr>
+    <tr><td><span class="pill amber">402 — NO CREDITS</span></td><td>Token is valid; the project has no paid credits.</td><td>Top up at developer.x.com → Billing.</td></tr>
+    <tr><td><span class="pill red">401 — token invalid</span></td><td>Token was revoked or mistyped.</td><td>Regenerate at developer.x.com and re-save.</td></tr>
+    <tr><td><span class="pill red">403 — not permitted</span></td><td>Your tier doesn't include this endpoint.</td><td>Check the product's access level on your project.</td></tr>
+    <tr><td><span class="pill">429 — rate limited</span></td><td>Too many calls; connector auto-waits until the reset window.</td><td>Nothing — it backs off for you.</td></tr>
+  </table>
+  <div class="note amber">Recent-search only reaches ~7 days back, and deleted/edited posts are gone — the
+  connector manifest states its own coverage gaps on the Data Sources page so nobody over-trusts a null result.</div>
+</section>
+
+<section id="ai">
+  <h2>Optional intelligence layer (off by default)</h2>
+  <p class="lead">Point PICKEMUP at any OpenAI-compatible endpoint (including a fully local model) and two things
+  unlock — without ever weakening the deterministic core:</p>
+  <div class="grid2">
+    <div class="card"><h3>📝 Narrative reports</h3><p>The engine still compiles the facts; the model only
+    <i>writes</i> around them. The fact-pack + SHA-256 fingerprint is stored with every report; if the model
+    misbehaves, the template report is produced automatically and the failure is logged.</p></div>
+    <div class="card"><h3>🔎 Autonomous investigator</h3><p>An agent over seven <b>read-only</b> tools
+    (risk lists, cluster detail, account dossier, search, entity pivots…) that drafts findings — each cited
+    to stored evidence ids. It cannot collect, delete, or send anything.</p></div>
+  </div>
+  <div class="note">Delivery policy: copies to the operator are mandatory and logged; email to <i>authorities</i>
+  is opt-in per report and audited (recipient, time, SHA of content). SMTP + model secrets are write-only, like
+  the X token.</div>
+</section>
+
+<section id="privacy">
+  <h2>Privacy, honesty &amp; misuse</h2>
+  <div class="grid2">
+    <div class="card"><h3>🔒 Local-first by construction</h3><p>The database is a file on your disk. The only
+    outbound calls are the Bluesky public API / X API (with your token), an optional LLM endpoint you configure,
+    and optional SMTP.
+    No telemetry, no SaaS, no phoning home.</p></div>
+    <div class="card"><h3>🏷 Badge what's synthetic</h3><p>Every record carries an origin mode; demo, mock and
+    fixture data are visibly badged throughout the UI. Synthetic-data metrics are never presented as
+    live-network accuracy.</p></div>
+    <div class="card"><h3>🗣 Verdicts stay probabilistic</h3><p>Output language is capped at
+    <i>likely / possible / indeterminate / insufficient evidence</i>. The product never asserts identity,
+    control, or authorship from correlation, and reports organic alternative explanations alongside findings.</p></div>
+    <div class="card"><h3>⚖ Use it lawfully</h3><p>Built for researching <b>public</b> coordinated inauthentic
+    behavior — journalism, academia, platform-trust teams, election integrity. Not for harassment, doxxing, or
+    surveilling private individuals. Respect platform ToS and applicable law.</p></div>
+  </div>
+</section>
+
+<section id="start">
+  <h2>Install &amp; quick start</h2>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card"><h3>① Installer (a PC you use)</h3>
+      <p>Run <b>PICKEMUP-Setup-0.1.0.exe</b> (rebuild anytime with
+      <code>scripts\build-installer.bat</code>). Per-user install — no admin rights. A desktop shortcut
+      starts everything; the uninstaller asks before ever touching your collected data.
+      Needs Python ≥ 3.11 (and Node ≥ 18 for the dashboard) on the machine once.</p></div>
+    <div class="card"><h3>② USB / external drive — nothing installed</h3>
+      <p>Copy the folder to any drive and double-click <b>PICKEMUP_PORTABLE.bat</b> at its root.
+      The venv, <code>node_modules</code>, caches and the SQLite case file all live <b>on the drive</b> —
+      no registry writes, no AppData, no admin. Ports via <code>PICKEMUP_API_PORT</code> /
+      <code>PICKEMUP_WEB_PORT</code>; on a machine without Node it drops cleanly to API-only mode.
+      Same host prerequisites as ①, used read-only.</p></div>
+  </div>
+<pre><code># ③ Manual / development (any OS): Python ≥ 3.11, Node ≥ 20
+git clone https://github.com/&lt;you&gt;/pickemup.git &amp;&amp; cd pickemup
+scripts/bootstrap.bat                # or: python -m venv .venv &amp;&amp; .venv/Scripts/pip install -e ".[dev]"
+copy .env.example .env               # optional: X_BEARER_TOKEN + spend caps
+scripts\START_PICKEMUP.bat           # one click: API + dashboard + browser
+#   (or scripts/dev-all.bat)         # API + worker :8090, dashboard :3000
+
+# verify
+.venv/Scripts/python -m pytest tests -q          # 118 tests
+.venv/Scripts/python scripts/e2e_demo.py         # full acceptance scenario</code></pre>
+  <p class="lead" style="margin-top:14px">Open <b>http://localhost:3000</b> and collect from <b>Bluesky (free, no setup)</b> immediately —
+  or point the panel at X with a funded token. Flagged posts carry an <b>investigate →</b> action that
+  enrolls them in the human-review queue for extraction and reporting. The labeled offline demo remains available for development
+  (<code>PICKEMUP_DEV_TOOLS=1</code>).</p>
+  <div class="grid2">
+    <div class="card"><h3>Repo layout</h3><p><code>apps/web</code> Next.js dashboard ·
+    <code>services/api</code> FastAPI + durable worker · <code>packages/analysis-core</code> engines ·
+    <code>packages/connectors</code> ingestion · <code>packaging/</code> installer definition.</p></div>
+    <div class="card"><h3>Production notes</h3><p>Set <code>PICKEMUP_API_KEY</code> to require a key on all
+    endpoints; <code>env=prod</code> refuses to boot on default credentials. Postgres via <code>DATABASE_URL</code>
+    is on the roadmap along with RBAC and container images. Dev/test connectors (synthetic, mock, file import)
+    are hidden and API-rejected unless <code>PICKEMUP_DEV_TOOLS=1</code>.</p></div>
+  </div>
+</section>
+
+<footer><div class="cols">
+  <div>
+    <div class="logo" style="font-size:15px">PICKEM<b>UP</b></div>
+    <p style="margin-top:8px;max-width:440px">Local-first intelligence console for detecting coordinated
+    inauthentic behavior — deterministic engines, provenance on every record, honest uncertainty.</p>
+  </div>
+  <div><h4>Docs</h4>
+    <a href="#how">Architecture</a><a href="#connectx">X API guide</a><a href="#ai">LLM layer</a>
+    <a href="https://github.com/&lt;you&gt;/pickemup/tree/main/docs">Documentation</a></div>
+  <div><h4>Project</h4>
+    <a href="https://github.com/&lt;you&gt;/pickemup">Repository</a><a href="#start">Run locally</a>
+    <a href="#privacy">Ethics &amp; safety</a></div>
+</div></footer>
+
+</div></body>
+</html>
