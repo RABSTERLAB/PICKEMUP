@@ -121,7 +121,7 @@
   <b>explainable deterministic engines</b>, reconstructs narrative origins, and stores every finding as
   searchable local evidence — each verdict linked back to the exact posts that produced it.</p>
   <div class="chips">
-    <span class="chip ok">✓ 104 automated tests</span>
+    <span class="chip ok">✓ 127 automated tests</span>
     <span class="chip ok">Free Bluesky path — no API key needed</span>
     <span class="chip">100% local — SQLite / Postgres</span>
     <span class="chip">Works fully without any LLM</span>
@@ -317,14 +317,14 @@
       Same host prerequisites as ①, used read-only.</p></div>
   </div>
 <pre><code># ③ Manual / development (any OS): Python ≥ 3.11, Node ≥ 20
-git clone https://github.com/&lt;you&gt;/pickemup.git &amp;&amp; cd pickemup
+git clone https://github.com/RABSTERLAB/PICKEMUP.git && cd PICKEMUP
 scripts/bootstrap.bat                # or: python -m venv .venv &amp;&amp; .venv/Scripts/pip install -e ".[dev]"
 copy .env.example .env               # optional: X_BEARER_TOKEN + spend caps
 scripts\START_PICKEMUP.bat           # one click: API + dashboard + browser
 #   (or scripts/dev-all.bat)         # API + worker :8090, dashboard :3000
 
 # verify
-.venv/Scripts/python -m pytest tests -q          # 118 tests
+.venv/Scripts/python -m pytest tests -q          # 127 tests
 .venv/Scripts/python scripts/e2e_demo.py         # full acceptance scenario</code></pre>
   <p class="lead" style="margin-top:14px">Open <b>http://localhost:3000</b> and collect from <b>Bluesky (free, no setup)</b> immediately —
   or point the panel at X with a funded token. Flagged posts carry an <b>investigate →</b> action that
@@ -349,9 +349,9 @@ scripts\START_PICKEMUP.bat           # one click: API + dashboard + browser
   </div>
   <div><h4>Docs</h4>
     <a href="#how">Architecture</a><a href="#connectx">X API guide</a><a href="#ai">LLM layer</a>
-    <a href="https://github.com/&lt;you&gt;/pickemup/tree/main/docs">Documentation</a></div>
+    <a href="https://github.com/RABSTERLAB/PICKEMUP/tree/main/docs">Documentation</a></div>
   <div><h4>Project</h4>
-    <a href="https://github.com/&lt;you&gt;/pickemup">Repository</a><a href="#start">Run locally</a>
+    <a href="https://github.com/RABSTERLAB/PICKEMUP">Repository</a><a href="#start">Run locally</a>
     <a href="#privacy">Ethics &amp; safety</a></div>
 </div></footer>
 
