@@ -60,7 +60,10 @@ class Settings(BaseSettings):
         if url.startswith("sqlite:///") and ":memory:" not in url:
             tail = url[len("sqlite:///"):]
             if not (tail.startswith("/") or tail[1:3] in (":\\", ":/") or len(tail) < 2):
-                self.database_url = "sqlite:///" + (
-                    _REPO_ROOT / tail.replace("\\", "/")).as_posix()
+                target = _REPO_ROOT / tail.replace("\\", "/")
+                # fresh clones/CI have no data/ dir (gitignored) — sqlite cannot
+                # create a file inside a missing directory, so make the parent.
+                target.parent.mkdir(parents=True, exist_ok=True)
+                self.database_url = "sqlite:///" + target.as_posix()
 
 settings = Settings()

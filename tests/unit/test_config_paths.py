@@ -36,3 +36,14 @@ def test_prod_fails_closed_on_default_credentials():
     s = Settings(pickemup_env="prod", pickemup_secret_key="x" * 32,
                  pickemup_api_key="k")
     assert s.pickemup_env == "prod"
+
+
+def test_sqlite_parent_dir_is_created_on_fresh_checkout(tmp_path, monkeypatch):
+    """A git checkout has no data/ dir (it is gitignored) — sqlite cannot open
+    a file inside a missing directory, so config must create the parent."""
+    from pickemup_api import config as cfg
+    fake_root = tmp_path / "fresh-clone"
+    monkeypatch.setattr(cfg, "_REPO_ROOT", fake_root)
+    s = cfg.Settings(_env_file=None, database_url="sqlite:///./data/pickemup.db")
+    assert (fake_root / "data").is_dir()
+    assert s.database_url.endswith("data/pickemup.db")

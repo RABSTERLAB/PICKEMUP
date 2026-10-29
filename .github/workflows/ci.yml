@@ -9,15 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install
         run: |
-          uv venv
-          uv pip install -e ".[dev]"
+          set -o pipefail
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" 2>&1 | tee install.log || {
+            # step summaries are public even when raw logs need login
+            echo "### Install failed — last pip output:" >> "$GITHUB_STEP_SUMMARY"
+            tail -n 60 install.log | sed 's/^/    /' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
       - name: Tests
-        run: .venv/bin/python -m pytest tests -q
+        run: python -m pytest tests -q
 
   frontend:
     runs-on: ubuntu-latest
